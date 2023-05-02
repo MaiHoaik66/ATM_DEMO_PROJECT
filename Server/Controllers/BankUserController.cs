@@ -45,16 +45,14 @@ public class BankUserController : ControllerBase
     public async Task<IActionResult> ValidateUserLoginInfoFromClientAsync([FromBody] string encryptedUserLoginInfo,
                                                                           CancellationToken cancellationToken)
     {
-        var userLoginInfoAsJson = _rsaEncryptor.Decrypt(cipherText: encryptedUserLoginInfo);
-
-        var userLoginInfoDto = JsonSerializer.Deserialize(json: userLoginInfoAsJson,
+        var userLoginInfoDto = JsonSerializer.Deserialize(json: _rsaEncryptor.Decrypt(cipherText: encryptedUserLoginInfo),
                                                           returnType: typeof(BankUserLoginInfoDTO))
                                as BankUserLoginInfoDTO;
 
         var foundUserLoginInfo = await
                     _context
                     .BankUserLoginInfo
-                    .FirstAsync(predicate: userLoginInfo =>
+                    .FirstOrDefaultAsync(predicate: userLoginInfo =>
                                            userLoginInfo.CardID.Equals(userLoginInfoDto.CardID) &&
                                            userLoginInfo.PIN.Equals(userLoginInfoDto.PIN),
                                            cancellationToken: cancellationToken);
@@ -81,7 +79,7 @@ public class BankUserController : ControllerBase
         var foundUserInfo = await
             _context
             .BankUserInfo
-            .FirstAsync(predicate: userInfo => userInfo.CardID.Equals(cardID),
+            .FirstOrDefaultAsync(predicate: userInfo => userInfo.CardID.Equals(cardID),
                         cancellationToken: cancellationToken);
 
         _userRSAPublicKeyDictionary.TryGetValue(key: cardID,
@@ -104,7 +102,7 @@ public class BankUserController : ControllerBase
         var foundUserInfo = await
             _context
             .BankUserInfo
-            .FirstAsync(predicate: userInfo => userInfo.CardID.Equals(cardIDAndWithdrawMoneyDto.CardID),
+            .FirstOrDefaultAsync(predicate: userInfo => userInfo.CardID.Equals(cardIDAndWithdrawMoneyDto.CardID),
                         cancellationToken: cancellationToken);
 
         foundUserInfo.Money -= cardIDAndWithdrawMoneyDto.WithdrawAmount;

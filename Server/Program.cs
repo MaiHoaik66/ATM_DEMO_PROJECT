@@ -13,10 +13,6 @@ var builder = WebApplication.CreateBuilder(args: args);
 var services = builder.Services;
 
 services
-    .AddCors(setupAction: action => action.AddDefaultPolicy(configurePolicy: policy => policy
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowAnyOrigin()))
     .AddSingleton<RSAEncryptor>()
     .AddSingleton<IDictionary<string, string>>(implementationFactory: provider => new Dictionary<string, string>())
     .AddDbContextPool<BankContext>(optionsAction: action =>
@@ -43,8 +39,7 @@ var app = builder.Build();
 app
     .UseHsts()
     .UseHttpsRedirection()
-    .UseRouting()
-    .UseCors();
+    .UseRouting();
 
 app.MapControllers();
 
