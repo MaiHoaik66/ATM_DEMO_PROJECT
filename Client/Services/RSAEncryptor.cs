@@ -13,7 +13,7 @@ public class RSAEncryptor : IDisposable
     public RSAEncryptor()
     {
         _rsa = RSA.Create();
-        _csp = new();
+        _csp = new(dwKeySize: 2048);
     }
 
     public string GetPublicKey() => _rsa.ToXmlString(includePrivateParameters: false);
